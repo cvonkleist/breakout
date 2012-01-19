@@ -2,12 +2,44 @@
 #include "icons.h"
 #include "levels.h"
 
+const int width = 10;
+const int height = 10;
+
+const int strand_count = 2;
+const int strand_pins[] = {5, 6};
+
+const int strand_pin_lookup_table[] = {
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+};
+
+const int bulb_lookup_table[] = {
+  4, 5, 14, 15, 24, 25, 34, 35, 44, 45,
+  4, 5, 14, 15, 24, 25, 34, 35, 44, 45,
+  3, 6, 13, 16, 23, 26, 33, 36, 43, 46,
+  3, 6, 13, 16, 23, 26, 33, 36, 43, 46,
+  2, 7, 12, 17, 22, 27, 32, 37, 42, 47,
+  2, 7, 12, 17, 22, 27, 32, 37, 42, 47,
+  1, 8, 11, 18, 21, 28, 31, 38, 41, 48,
+  1, 8, 11, 18, 21, 28, 31, 38, 41, 48,
+  0, 9, 10, 19, 20, 29, 30, 39, 40, 49,
+  0, 9, 10, 19, 20, 29, 30, 39, 40, 49,
+};
+
 #define INTENSITY 0x33
 
 uint16_t *level_icons[] = {icon_1, icon_2, icon_3, icon_4, icon_5};
 
 // this buffer stores the state of the screen
-xmas_color_t screen[WIDTH][HEIGHT];
+xmas_color_t screen[width][height];
 
 
 int level;
@@ -24,7 +56,7 @@ void loop() {
   ball_y += ball_speed_y;
 
   // bounce paddle of walls and ceiling
-  if(ball_x >= WIDTH || ball_x < 0) {
+  if(ball_x >= width || ball_x < 0) {
     ball_speed_x = -ball_speed_x;
     ball_x += 2 * ball_speed_x;
   }
@@ -53,7 +85,7 @@ void loop() {
   }
   
   // did the ball make it off the bottom of the screen?
-  if(ball_y >= HEIGHT) {
+  if(ball_y >= height) {
     // demo cheat
     level = (level + 1) % LEVEL_COUNT;
     win_level();
@@ -130,11 +162,14 @@ int read_paddle() {
 }
 
 void setup() {
+  // wait for light processors to start up
+  delay(3000);
+
   Serial.begin(9600);
   randomSeed(analogRead(0));
 
-  // wait for light processors to start up
-  delay(2000);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
 
   level = 0;
 
@@ -192,8 +227,8 @@ void touch_up() {
 // paints the whole pegboard black and also resets the screen buffer to the same
 void clear_screen() {
   clear();
-  for(int y = 0; y < HEIGHT; y++)
-    for(int x = 0; x < WIDTH; x++)
+  for(int y = 0; y < height; y++)
+    for(int x = 0; x < width; x++)
       screen[x][y] = COLOR_BLACK;
 }
 
@@ -213,7 +248,7 @@ void draw_bricks() {
   xmas_color_t color;
   bricks_on = 0;
   for(int l = 0; l < line_count[level]; l++) {
-    for(int c = 0; c < WIDTH; c++) {
+    for(int c = 0; c < width; c++) {
       color = brick_color(bricks[level][l][c]);
       set_screen_pixel(c, l, INTENSITY, color);
       if(color != COLOR_BLACK && color != COLOR_YELLOW)
