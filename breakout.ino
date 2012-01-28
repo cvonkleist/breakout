@@ -158,7 +158,9 @@ void next_level() {
 // this is hand-calibrated to my joystick
 int read_paddle() {
   int v = analogRead(0);
-  return min(max(7 - (v - 630) / 9, 0), 6);
+  if(v < 930) v = 930;
+  v = 9 - (v - 930.0) / (1024 - 930) * 9;
+  return v;
 }
 
 void setup() {
@@ -240,8 +242,10 @@ void draw_paddle() {
   paddle(COLOR_YELLOW);
 }
 void paddle(xmas_color_t color) {
-  for(int x = paddle_x; x < paddle_x + 4; x++)
-    set_screen_pixel(x, 9, INTENSITY, color);
+  for(int x = paddle_x; x < paddle_x + 4; x++) {
+    if(x < 10)
+      set_screen_pixel(x, 9, INTENSITY, color);
+  }
 }
 
 void draw_bricks() {
